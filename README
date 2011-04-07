@@ -6,37 +6,38 @@ breakpoints) on intel x86-64 computers, without the need to use ptrace.
 
 This is free software, and is licensed under the GPL, version 3.  A version of
 this license was included with this software in a file named LICENSE.  If this
-file was not included with this software, it is available on [The GNU Website](http://www.gnu.org/licenses/gpl-3.0.txt/ "GNU.org").
+file was not included with this software, it is available on the [GNU
+Website][gnu].
 
+[gnu]: http://www.gnu.org/licenses/gpl-3.0.txt
 
 Overview
 --------
 There are two parts to this software:
 
-1. The debug_mod kernel module
-2. The drprobe userspace library
-
-The debug_mod kernel module provides an interface to the debug registers via
-the /proc filesystem.
-
-The drprobe userspace library provides a C-level interface to the registers,
-abstracting the low-level accesses to /proc.
-
+ 1. The `debug_mod` kernel module, providing an interface to the debug
+    registers via the `/proc` filesystem; and
+ 2. The `drprobe` userspace library, which provides a C-level interface to the
+    registers, abstracting the underlying accesses to `/proc`.
 
 Building
 --------
-There are two steps to building this software: building the kernel module, and building the user-space library.  
+There are two steps to building this software: building the kernel module, and
+building the user-space library.  
 
-First, be sure you've installed the kernel headers for your kernel.  
-Next, run "make" in the debug_mod directory.  This will build the kernel module.  
-Finally, run "make" in the top level directory.  This will build the user-space library.  
+First, be sure you've installed the kernel headers for your kernel.  Next, run
+"make" in the debug_mod directory.  This will build the kernel module.
+Finally, run "make" in the top level directory.  This will build the user-space
+library.  
 
 
 Using DRProbe
 -------------
-*To load the kernel module, run "insmod debug_mod.ko" in the debug_mod subdirectory.  You need root privilege to load a kernel module.
-
-*To use the library, include drprobe.h in your project.  drprobe.h lists the api functions available.   Link your project with libdrprobe.so, and you should be all set.
+* To load the kernel module, run "insmod debug_mod.ko" in the debug_mod
+  subdirectory.  You need root privilege to load a kernel module.
+* To use the library, include drprobe.h in your project.  drprobe.h lists the
+  api functions available.   Link your project with libdrprobe.so, and you
+  should be all set.
 
 
 API Description

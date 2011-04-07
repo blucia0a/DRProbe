@@ -1,24 +1,13 @@
+SUBDIRS=debug_mod drprobe
+
 all:
-	gcc -g -shared -fPIC drprobe.c -o libdrprobe.so
-
-test:
-	gcc -L. -ldrprobe -g -shared -fPIC drprobe.c -o libdrprobe.so
-
-doc:
-	echo "<html><head></head><body>" > README.html
-	markdown README >> README.html; 
-	echo "</body></html>" >> README.html
-
-cleandoc:
-	rm README.html
-
+	for f in $(SUBDIRS); do make -C $$f; done
 clean:
-	rm libdrprobe.so
-
-cleantest:
-	rm drp_test
-
-cleanall:
-	-rm README.html
-	-rm libdrprobe.so
-	-rm drp_test
+	for f in $(SUBDIRS); do make -C $$f clean; done
+test:
+	for f in $(SUBDIRS); do make -C $$f test; done
+doc:
+	echo "<html><body>" > README.html
+	markdown README >> README.html
+	echo "</body></html>" >> README.html
+	
