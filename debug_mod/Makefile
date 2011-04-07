@@ -5,4 +5,7 @@ all:
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-	-rm debug_mod_test
+	@rm -f debug_mod_test
+
+test:
+	gcc debug_mod_test.c -o debug_mod_test
