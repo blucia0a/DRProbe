@@ -3,6 +3,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "drprobe.h"
+
+void drp_init(){
+  drp_set(0x0,0);
+  drp_set(0x0,1);
+  drp_set(0x0,2);
+  drp_set(0x0,3);
+
+  drp_disable(0);
+  drp_disable(1);
+  drp_disable(2);
+  drp_disable(3);
+
+  drp_set(0x0,6);
+}
 
 void drp_disable(int which){
 
@@ -15,10 +30,10 @@ void drp_disable(int which){
 
   }
 
-  if(which == 0) dr7 |= 0x0000000000000001;
-  else if(which == 1) dr7 |= 0x0000000000000004;
-  else if(which == 2) dr7 |= 0x0000000000000010;
-  else if(which == 3) dr7 |= 0x0000000000000040;
+  if(which == 0) dr7 |= 0x000F0003;
+  else if(which == 1) dr7 |= 0x00F0000C;
+  else if(which == 2) dr7 |= 0x0F000030;
+  else if(which == 3) dr7 |= 0xF00000C0;
 
   dr7 = ~dr7;
 
@@ -40,7 +55,7 @@ void drp_disable(int which){
 
 }
 
-void drp_enable(int which){
+void drp_enable(int which, drp_trigger_type how){
 
   unsigned long dr7 = 0;
   unsigned long olddr7 = 0;
@@ -50,11 +65,21 @@ void drp_enable(int which){
     fprintf(stderr,"[DRPROBE] Invalid Debug Register %d\n", which);
 
   }
+  if(how == DRP_HOW_RDWR){
 
-  if(which == 0) dr7 |= 0x000F0401;
-  else if(which == 1) dr7 |= 0x000F0404;
-  else if(which == 2) dr7 |= 0x000F0410;
-  else if(which == 3) dr7 |= 0x000F0440;
+    if(which == 0) dr7 |= 0x000F0303;
+    else if(which == 1) dr7 |= 0x00F0030C;
+    else if(which == 2) dr7 |= 0x0F000330;
+    else if(which == 3) dr7 |= 0xF00003C0;
+
+  }else if(how == DRP_HOW_WRONLY){
+
+    if(which == 0) dr7 |= 0x000D0302;
+    else if(which == 1) dr7 |= 0x00D00308;
+    else if(which == 2) dr7 |= 0x0D000320;
+    else if(which == 3) dr7 |= 0xD0000380;
+
+  }
 
   int fd = open("/proc/dr/dr7", O_RDWR);
   read(fd, &olddr7, sizeof olddr7);
@@ -95,9 +120,16 @@ void drp_set(unsigned long addr, int which){
 
 }
 
+void drp_watch_wr(unsigned long addr, int which){
+
+  drp_enable(which, DRP_HOW_WRONLY);
+  drp_set(addr,which);
+
+}
+
 void drp_watch(unsigned long addr, int which){
 
-  drp_enable(which);
+  drp_enable(which, DRP_HOW_RDWR);
   drp_set(addr,which);
 
 }
@@ -146,11 +178,11 @@ int drp_explain(){
   unsigned long val = drp_value(6);
   if( val & 0x01 ){
     return 0;
-  }else if( val & 0x04 ){
+  }else if( val & 0x02 ){
     return 1;
-  }else if( val & 0x10 ){
+  }else if( val & 0x04 ){
     return 2;
-  }else if( val & 0x40 ){
+  }else if( val & 0x08 ){
     return 3;
   }else{
     return -1;
