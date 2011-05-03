@@ -204,10 +204,10 @@ static int debug_mod_read(char *page, char **start, off_t off,
 	int nr = (int)((long)data);
 	long val;
 
-	debug_print(KERN_INFO "Reading %d:dr%d\n", current->pid, nr);
+	//debug_print(KERN_INFO "Reading %d:dr%d\n", current->pid, nr);
 	val = read_dr(nr);
 
-	debug_print(KERN_INFO "  Got value %ld (%lx)\n", val, val);
+	//debug_print(KERN_INFO "  Got value %ld (%lx)\n", val, val);
 	*((long *)page) = val;
 	*eof = 1;
 
@@ -234,10 +234,10 @@ static int debug_mod_write(struct file *file, const char __user *buffer,
 
 	set_thread_flag(TIF_DEBUG);
 
-	debug_print(KERN_INFO "Writing %d:dr%d, val:%ld (%lx)\n", current->pid, nr, val, val);
+	//debug_print(KERN_INFO "Writing %d:dr%d, val:%ld (%lx)\n", current->pid, nr, val, val);
 	ret = write_dr(nr, val);
-	val = read_dr(nr);
-	debug_print(KERN_INFO "  Reading to check: %ld (%lx)\n", val, val);
+	//val = read_dr(nr);
+	//debug_print(KERN_INFO "  Reading to check: %ld (%lx)\n", val, val);
 
 	return cnt;
 }
