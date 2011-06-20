@@ -17,7 +17,6 @@ int main(int argc, char *argv[]){
   
   for( i = 0; i < 4; i++){
     a[i] = i;
-    fprintf(stderr,"Correct address is 0x%016lx\n",&a);
 
     drp_watch_wr((unsigned long)&a[i],i);
   
@@ -28,14 +27,17 @@ int main(int argc, char *argv[]){
     fprintf(stderr,"WP%d is %s 0x%016lx\n", i, drp_status(i) ? "watching" : "not watching", drp_value(i) );
   
     /*This should cause a trap*/
+    a[i] = 0xabcd;
+    
+    /*This should not cause a trap*/
     int b = a[i];
   
     drp_unwatch(i);
     fprintf(stderr,"WP%d is %s 0x%016lx\n", i, drp_status(i) ? "watching" : "not watching", drp_value(i) );
     
     /*This should not cause a trap*/
-    int c = a[i];
-    fprintf(stderr,"%d %d %d\n",a[i],b,c);
+    a[i] = 0xbcda;
+
     usleep(100);
   }
 

@@ -96,18 +96,18 @@ int create_proc_entries(void)
 	long i, j, ret = 0;
 	char buffer[32];
 
-	debug_print(KERN_INFO "  Creating proc entries\n");
+	//debug_print(KERN_INFO "  Creating proc entries\n");
 
 	proc_dir = proc_mkdir(PROC_DIRNAME, NULL);
 	if (proc_dir == NULL) {
 		ret = -1;
-		debug_print(KERN_INFO "Couldn't create dir /proc/%s\n", PROC_DIRNAME);
+		//debug_print(KERN_INFO "Couldn't create dir /proc/%s\n", PROC_DIRNAME);
 		goto out_ret;
 	}
 
 	for (i = 0; i < NR_DRS; i++) {
 		snprintf(buffer, sizeof buffer, "dr%ld", i);
-		debug_print(KERN_INFO "    Creating /proc/%s/%s...\n", PROC_DIRNAME, buffer);
+		//debug_print(KERN_INFO "    Creating /proc/%s/%s...\n", PROC_DIRNAME, buffer);
 
 		drs[i] = create_proc_entry(buffer, 0666, proc_dir);
 		if (drs[i] == NULL) {
@@ -131,11 +131,11 @@ int create_proc_entries(void)
  out_free_dir:
  	for (j = 0; j < i; j++) {
 		snprintf(buffer, sizeof buffer, "dr%ld", j);
-		debug_print(KERN_INFO "  Removing /proc/%s/%s\n", PROC_DIRNAME, buffer);
+		//debug_print(KERN_INFO "  Removing /proc/%s/%s\n", PROC_DIRNAME, buffer);
 		remove_proc_entry(buffer, proc_dir);
 	}
 
-	debug_print(KERN_INFO "  Removing /proc/%s\n", PROC_DIRNAME);
+	//debug_print(KERN_INFO "  Removing /proc/%s\n", PROC_DIRNAME);
 	remove_proc_entry(PROC_DIRNAME, NULL);
 
  out_ret:
@@ -147,11 +147,11 @@ void remove_proc_entries(void)
 	int i;
 	char buffer[32];
 
-	debug_print(KERN_INFO "Removing proc entries\n");
+	//debug_print(KERN_INFO "Removing proc entries\n");
 
 	for (i = 0; i < NR_DRS; i++) {
 		snprintf(buffer, sizeof buffer, "dr%d", i);
-		debug_print(KERN_INFO "    Removing /proc/%s/%s...\n", PROC_DIRNAME, buffer);
+		//debug_print(KERN_INFO "    Removing /proc/%s/%s...\n", PROC_DIRNAME, buffer);
 		remove_proc_entry(buffer, proc_dir);
 	}
 
