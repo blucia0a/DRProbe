@@ -38,7 +38,6 @@ int main(int argc, char *argv[]){
     /*This should not cause a trap*/
     a[i] = 0xbcda;
 
-    usleep(100);
   }
 
 }
