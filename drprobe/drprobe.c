@@ -6,6 +6,8 @@
 #include "drprobe.h"
 
 void drp_init(){
+
+
   drp_set(0x0,0);
   drp_set(0x0,1);
   drp_set(0x0,2);
@@ -17,6 +19,8 @@ void drp_init(){
   drp_disable(3);
 
   drp_set(0x0,6);
+  
+
 }
 
 void drp_disable(int which){
@@ -37,7 +41,7 @@ void drp_disable(int which){
 
   dr7 = ~dr7;
 
-  int fd = open("/proc/dr/dr7", O_RDWR);
+  int fd = open("/proc/dr/dr7", O_RDWR | O_SYNC);
   read(fd, &olddr7, sizeof olddr7);
 
   /*Mask off all but the enable bit for this wp*/
@@ -67,21 +71,30 @@ void drp_enable(int which, drp_trigger_type how){
   }
   if(how == DRP_HOW_RDWR){
 
-    if(which == 0) dr7 |= 0x000F0303;
-    else if(which == 1) dr7 |= 0x00F0030C;
-    else if(which == 2) dr7 |= 0x0F000330;
-    else if(which == 3) dr7 |= 0xF00003C0;
+    if(which == 0) dr7 |= 0x000F0202;
+    else if(which == 1) dr7 |= 0x00F00208;
+    else if(which == 2) dr7 |= 0x0F000220;
+    else if(which == 3) dr7 |= 0xF0000280;
 
   }else if(how == DRP_HOW_WRONLY){
 
-    if(which == 0) dr7 |= 0x000D0302;
-    else if(which == 1) dr7 |= 0x00D00308;
-    else if(which == 2) dr7 |= 0x0D000320;
-    else if(which == 3) dr7 |= 0xD0000380;
+    if(which == 0) dr7 |= 0x000D0202;
+    else if(which == 1) dr7 |= 0x00D00208;
+    else if(which == 2) dr7 |= 0x0D000220;
+    else if(which == 3) dr7 |= 0xD0000280;
 
+  }else if(how == DRP_HOW_INSTR){
+
+    if(which == 0) dr7 |= 0x00000202;
+    else if(which == 1) dr7 |= 0x00000208;
+    else if(which == 2) dr7 |= 0x00000220;
+    else if(which == 3) dr7 |= 0x00000280;
+  
+  }else{
+    fprintf(stderr,"[DRPROBE] Unknown DRP_HOW value\n");
   }
 
-  int fd = open("/proc/dr/dr7", O_RDWR);
+  int fd = open("/proc/dr/dr7", O_RDWR | O_SYNC);
   read(fd, &olddr7, sizeof olddr7);
 
   dr7 |= olddr7;
@@ -94,6 +107,7 @@ void drp_enable(int which, drp_trigger_type how){
   }
 
   write(fd, &dr7, sizeof dr7);
+
   close(fd);
 
 }
@@ -104,7 +118,7 @@ void drp_set(unsigned long addr, int which){
   int fd = -1;
 
   snprintf(buffer, sizeof buffer, "/proc/dr/dr%d", which);
-  fd = open(buffer, O_RDWR);
+  fd = open(buffer, O_RDWR | O_SYNC);
 
   if( fd == -1 ){
 
@@ -114,9 +128,14 @@ void drp_set(unsigned long addr, int which){
   }
 
   write(fd, &addr, sizeof(addr));
-  unsigned long foo;
-  read(fd, &foo, sizeof(foo));
   close(fd);
+
+}
+
+void drp_watch_inst(unsigned long addr, int which){
+
+  drp_enable(which, DRP_HOW_INSTR);
+  drp_set(addr,which);
 
 }
 
@@ -145,7 +164,7 @@ int drp_status(int which){
   
   int fd = -1;
   unsigned long dr7 = 0;
-  fd = open("/proc/dr/dr7", O_RDWR);
+  fd = open("/proc/dr/dr7", O_RDWR | O_SYNC);
   read(fd, &dr7, sizeof dr7);
   close(fd);
 
@@ -164,7 +183,7 @@ unsigned long drp_value(int which){
   unsigned long val = 0;
 
   snprintf(buffer, sizeof buffer, "/proc/dr/dr%d", which);
-  fd = open(buffer, O_RDWR);
+  fd = open(buffer, O_RDWR | O_SYNC);
   read(fd, &val, sizeof(unsigned long));
   close(fd);
   
@@ -176,6 +195,7 @@ unsigned long drp_value(int which){
 int drp_explain(){
   
   unsigned long val = drp_value(6);
+  drp_set(0x0,6);
   if( val & 0x01 ){
     return 0;
   }else if( val & 0x02 ){
